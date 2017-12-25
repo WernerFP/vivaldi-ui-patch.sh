@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Extended customizations in vivaldi presuppose a patch of the file `browser.html` in the relevant Vivaldi installation directory. 
+Extended customizations in Vivaldi presuppose a patch of the file `browser.html` in the relevant Vivaldi installation directory. 
 
 Adding customized CSS style requires following line inside the `<head>` element of `browser.html`:
 ```
