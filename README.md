@@ -1,0 +1,1 @@
+# vivaldi-ui-patch.sh
