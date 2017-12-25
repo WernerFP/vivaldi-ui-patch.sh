@@ -26,7 +26,7 @@ Modified CSS code resp. JavaScript code can be included in Vivaldi with `custom.
 
 Updates of Vivaldi will overwrite the `browser.html` file. Then you can simply run the script again.
 
-If the file `browser.html` has already been patched, the script can be used to transfer changes of `custom.css` and/or `custom.js` into the target directories of the chosen Vivaldi installation.
+If the file `browser.html` has already been patched, the script can be used to transfer changes of `custom.css` and/or `custom.js` into the target directory of the chosen Vivaldi installation.
 
 ## Requirements
 
