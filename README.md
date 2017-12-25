@@ -12,7 +12,7 @@ Adding customized JavaScript functionality requires following line inside the `<
 ```
 <script src="custom.js"></script>
 ```
-Modified CSS code resp. JavaScript code now can be used in files with file names `custom.css` resp. `custom.js`. The modifications take effect after the files have been copied into the relevant Vivaldi installation directory:
+Modified CSS code resp. JavaScript code can be included in Vivaldi with `custom.css` resp. `custom.js` files. The changes will be effective after the files have been copied into the appropriate Vivaldi installation directory:
 ```
 /opt/<vivaldi or vivaldi-snapshot>/resources/vivaldi/style/custom.css
 /opt/<vivaldi or vivaldi-snapshot>/resources/vivaldi/custom.js
