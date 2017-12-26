@@ -6,8 +6,8 @@
 #
 # Script to patch the browser.html and copy custom.css and custom.js 
 # in a selected Vivaldi installation. 
-# The files custom.css and custom.js must be placed in the same 
-# directory that contains the script.
+# The files custom.css and custom.js must be in the same directory
+# where the script is executed. 
 # The script offers to create a backup of browser.html.
 
 ITSME=$( basename $( readlink -f $0) )
