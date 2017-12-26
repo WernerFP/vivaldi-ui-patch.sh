@@ -52,7 +52,7 @@ fi
 read -p "► Should we backup browser.html first? [y/n]: " OP;
 if  [[ -z $OP ]] || [[ $OP == [yYjJ] ]]; then
 	BU="$PWD/browser.html-$( date +"%Y%m%d_%H%M" ).bak"
-	cp "$VD/$DL/browser.html" "$BU"
+	cp "$VD$DL/browser.html" "$BU"
 	chown -c $USER "$BU" 2>&1> /dev/null; chmod -f 644 "$BU"; chgrp -f users "$BU"
 fi
 
