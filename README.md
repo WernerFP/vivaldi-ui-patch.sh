@@ -30,6 +30,6 @@ If the file `browser.html` has already been patched, the script can be used to t
 
 ## Requirements
 
-The files `custom.css` and `custom.js` must be in the same directory where the script is executed.
+The files `custom.css` and `custom.js` must be located in the same directory where the script is executed.
 
 The bash script was written for Arch Linux, but should work just as well in other Linux distributions.
