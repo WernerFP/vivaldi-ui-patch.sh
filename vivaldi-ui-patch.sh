@@ -59,15 +59,16 @@ fi
 QCC=$(grep "style/custom.css" "$VD$DL/browser.html" )
 QCJ=$(grep "custom.js" "$VD$DL/browser.html" )
 if [[ -z $QCC ]]; then
-	sed -i 's/  <\/head>/    –––\n&/g' "$VD$DL/browser.html"
+	sed -i 's/  <\/head>/    <link rel=\"stylesheet\" href=\"style\/custom.css\" \/>\n&/'\
+	"$VD$DL/browser.html"
 	DONE=" browser.html is patched"
 fi
 if [[ -z $QCJ ]]; then
-	sed -i 's/  <\/body>/    ––\n&/g' "$VD$DL/browser.html"
+	sed -i 's/  <\/body>/    <script src=\"custom.js\"><\/script>\n&/'\
+	"$VD$DL/browser.html"
 	DONE=" browser.html is patched"
 fi
-sed -i 's/–––/<link rel=\"stylesheet\" href=\"style\/custom.css\" \/>/g' "$VD$DL/browser.html"
-sed -i 's/––/<script src=\"custom.js\"><\/script>/g' "$VD$DL/browser.html"
+
 if [[ -f $CC ]]; then
 	cp -f "$PWD/custom.css" "$VD$DL/style/custom.css" 2>/dev/null
 	DONE=$(echo -e "$DONE\n custom.css is updated")
