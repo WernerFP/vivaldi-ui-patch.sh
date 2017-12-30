@@ -28,20 +28,20 @@ DONE=" browser.html has already been patched"
 N=1
 
 if [[ ! -f $CC ]] && [[ ! -f $CJ ]]; then
-	echo "► Neither 'custom.css' nor 'custom.js' was found in $PWD";
+	echo "► Neither 'custom.css' nor 'custom.js' was found in $PWD"
 	exit
 elif [[ -z $V ]]; then
-	echo "► No Vivaldi installation was found.";
+	echo "► No Vivaldi installation was found."
 	exit
 else
 	echo "Vivaldi installations found to patch:"
 fi
 
 for i in $V; do
-	echo $i": "$N; ((N++));
+	echo $i": "$N; (( N++ ))
 done
 
-read -p "► Please enter a selection number (or any key to cancel): " OP;
+read -p "► Please enter a selection number (or any key to cancel): " OP
 if [[ -z $OP ]] || [[ $OP != ${OP//[^0-9]/} ]] || [[ $OP++ > $N ]]; then
 	echo "The script '$ITSME' was canceled, goodbye."
 	exit
@@ -49,32 +49,41 @@ else
 	VD=$( echo $V | cut -d\  -f$OP 2>/dev/null ); OP=""
 fi
 
-read -p "► Should we backup browser.html first? [y/n]: " OP;
+read -p "► Should we backup browser.html first? [y/n]: " OP
 if  [[ -z $OP ]] || [[ $OP == [yYjJ] ]]; then
 	BU="$PWD/browser.html-$( date +"%Y%m%d_%H%M" ).bak"
 	cp "$VD$DL/browser.html" "$BU"
 	chown -c $USER "$BU" 2>&1> /dev/null; chmod -f 644 "$BU"; chgrp -f users "$BU"
 fi
 
-QCC=$(grep "style/custom.css" "$VD$DL/browser.html" )
-QCJ=$(grep "custom.js" "$VD$DL/browser.html" )
+QCC=$( grep "custom.css" "$VD$DL/browser.html" )
+QCJ=$( grep "custom.js" "$VD$DL/browser.html" )
 if [[ -z $QCC ]]; then
-	sed -i 's/  <\/head>/    <link rel=\"stylesheet\" href=\"style\/custom.css\" \/>\n&/'\
+	sed -i 's/^[\t\ \n]*<\/head>/    <link rel=\"stylesheet\" href=\"style\/custom.css\" \/>\n&/'\
 	"$VD$DL/browser.html"
 	DONE=" browser.html is patched"
 fi
 if [[ -z $QCJ ]]; then
-	sed -i 's/  <\/body>/    <script src=\"custom.js\"><\/script>\n&/'\
+	sed -i 's/^[\t\ \n]*<\/body>/    <script src=\"custom.js\"><\/script>\n&/'\
 	"$VD$DL/browser.html"
 	DONE=" browser.html is patched"
 fi
-
+QCC=$( grep "custom.css" "$VD$DL/browser.html" )
+QCJ=$( grep "custom.js" "$VD$DL/browser.html" )
+if [[ -z $QCC ]] || [[ -z $QCJ ]]; then
+	echo -e "► Sorry, the patch has not been executed due to unexpected HTML formatting: \n  $VD$DL/browser.html"
+	exit
+fi
 if [[ -f $CC ]]; then
 	cp -f "$PWD/custom.css" "$VD$DL/style/custom.css" 2>/dev/null
-	DONE=$(echo -e "$DONE\n custom.css is updated")
+	DONE=$( echo -e "$DONE\n custom.css is updated" )
 fi
 if [[ -f $CJ ]]; then
 	cp -f "$PWD/custom.js" "$VD$DL/custom.js" 2>/dev/null
-	DONE=$(echo -e "$DONE\n custom.js is updated")
+	DONE=$( echo -e "$DONE\n custom.js is updated" )
+fi
+if [[ -n $BU ]]; then
+	BU=$( echo "$BU" | sed -e 's/.*\///' ) 2>/dev/null
+	DONE=$( echo -e "$DONE\n Backup: $BU" )
 fi
 echo -e "-----------------------------------------------------------\nCompleted for $VD:\n$DONE"
