@@ -23,6 +23,8 @@ fi
 V=$( dirname $( find /opt -name "vivaldi-bin" ) 2>/dev/null )
 CC=$PWD/custom.css
 CJ=$PWD/custom.js
+GC="href=\"style/custom.css\""
+GJ="src=\"custom.js\""
 DL="/resources/vivaldi"
 DONE=" browser.html has already been patched"
 N=1
@@ -49,15 +51,17 @@ else
 	VD=$( echo $V | cut -d\  -f$OP 2>/dev/null ); OP=""
 fi
 
-read -p "► Should we backup browser.html first? [y/n]: " OP
-if  [[ -z $OP ]] || [[ $OP == [yYjJ] ]]; then
-	BU="$PWD/browser.html-$( date +"%Y%m%d_%H%M" ).bak"
-	cp "$VD$DL/browser.html" "$BU"
-	chown -c $USER "$BU" 2>&1> /dev/null; chmod -f 644 "$BU"; chgrp -f users "$BU"
+QCC=$( grep "$GC" "$VD$DL/browser.html" )
+QCJ=$( grep "$GJ" "$VD$DL/browser.html" )
+if [[ -z $QCC ]] || [[ -z $QCJ ]]; then
+	read -p "► Should we backup browser.html first? [y/n]: " OP
+	if  [[ -z $OP ]] || [[ $OP == [yYjJ] ]]; then
+		BU="$PWD/browser.html-$( date +"%Y%m%d_%H%M" ).bak"
+		cp "$VD$DL/browser.html" "$BU"
+		chown -c $USER "$BU" 2>&1> /dev/null; chmod -f 644 "$BU"; chgrp -f users "$BU"
+	fi
 fi
 
-QCC=$( grep "custom.css" "$VD$DL/browser.html" )
-QCJ=$( grep "custom.js" "$VD$DL/browser.html" )
 if [[ -z $QCC ]]; then
 	sed -i 's/^[\t\ \n]*<\/head>/    <link rel=\"stylesheet\" href=\"style\/custom.css\" \/>\n&/'\
 	"$VD$DL/browser.html"
@@ -68,10 +72,10 @@ if [[ -z $QCJ ]]; then
 	"$VD$DL/browser.html"
 	DONE=" browser.html is patched"
 fi
-QCC=$( grep "custom.css" "$VD$DL/browser.html" )
-QCJ=$( grep "custom.js" "$VD$DL/browser.html" )
+QCC=$( grep "$GC" "$VD$DL/browser.html" )
+QCJ=$( grep "$GJ" "$VD$DL/browser.html" )
 if [[ -z $QCC ]] || [[ -z $QCJ ]]; then
-	echo -e "► Sorry, the patch has not been executed due to unexpected HTML formatting: \n  $VD$DL/browser.html"
+	echo -e "► Sorry, the patch has not been executed due to unexpected HTML formatting:\n  $VD$DL/browser.html"
 	exit
 fi
 if [[ -f $CC ]]; then
