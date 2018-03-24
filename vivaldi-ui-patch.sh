@@ -40,7 +40,7 @@ else
 fi
 
 for i in $V; do
-	echo $i": "$N; (( N++ ))
+	echo  "  $(( N++ ))  $i"
 done
 
 read -p "► Please enter a selection number (or any key to cancel): " OP
