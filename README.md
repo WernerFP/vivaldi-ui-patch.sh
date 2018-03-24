@@ -18,7 +18,7 @@ Modified CSS code resp. JavaScript code can be included in Vivaldi with `custom.
 /opt/<vivaldi or vivaldi-snapshot>/resources/vivaldi/custom.js
 ```
 
-## What vivaldi-ui-patch.sh does
+## About vivaldi-ui-patch.sh
 
 * The script checks for existing Vivaldi installations and offers them for a patch selection.
 * Before the patch is executed, you will be asked if you want to make a backup of the file `browser.html` first.
