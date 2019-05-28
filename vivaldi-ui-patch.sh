@@ -1,93 +1,107 @@
 #!/bin/bash
 #
 # Author: WernerFP
-# License: GPL
+# License: GPL3
 # Source: https://github.com/WernerFP/vivaldi-ui-patch.sh
 #
-# Script to patch the browser.html and copy custom.css and custom.js 
-# in a selected Vivaldi installation. 
-# The files custom.css and/or custom.js must be in the same directory
-# where the script is executed. 
-# The script offers to create a backup of browser.html.
+# Script to patch the browser.html and copy custom.css and custom.js in a selected Vivaldi installation.
+#
+# Your files custom.css and/or custom.js must be in the same directory where the script is executed.
+# The script offers to backup the original browser.html.
 
-ITSME=$( basename $( readlink -f $0) )
+# Filename of this script
+itsme=$( basename $( readlink -f $0) )
 
+# check if environment variable $PWD and root privileges are present
 if [[ -z $PWD ]]; then
 	echo  "Sorry, \$PWD is not set in $0."
 	exit
 elif [ $UID != 0 ]; then
-	echo  "Please run '$ITSME' as root"
+	echo  "Please run '$itsme' as root"
 	exit
 fi
 
-V=$( dirname $( find /opt -name "vivaldi-bin" ) 2>/dev/null )
-CC=$PWD/custom.css
-CJ=$PWD/custom.js
-GC="href=\"style/custom.css\""
-GJ="src=\"custom.js\""
-DL="/resources/vivaldi"
-DONE=" browser.html has already been patched"
-N=1
+# Declaring variables
+vivaldi=$( dirname $( find /opt -name "vivaldi-bin" ) 2>/dev/null )
+css=$PWD/custom.css
+js=$PWD/custom.js
+href="href=\"style/custom.css\""
+scr="src=\"custom.js\""
+common_path="/resources/vivaldi"
+done=" browser.html has already been patched"
+n=1
 
-if [[ ! -f $CC ]] && [[ ! -f $CJ ]]; then
+# Are the necessary files available?
+if [[ ! -f $css ]] && [[ ! -f $js ]]; then
 	echo "► Neither 'custom.css' nor 'custom.js' was found in $PWD"
-	exit
-elif [[ -z $V ]]; then
+elif [[ -z $vivaldi ]]; then
 	echo "► No Vivaldi installation was found."
-	exit
 else
-	echo "Vivaldi installations found to patch:"
+	echo "Vivaldi installation(s) found to patch:"
 fi
 
-for i in $V; do
-	echo  "  $(( N++ ))  $i"
+# Number existing Vivaldi installations
+for i in $vivaldi; do
+	echo "  $(( n++ ))  $i"
+	count=$(echo "$(( n++ ))")
 done
 
-read -p "► Please enter a selection number (or any key to cancel): " OP
-if [[ -z $OP ]] || [[ $OP != ${OP//[^0-9]/} ]] || [[ $OP++ > $N ]]; then
-	echo "The script '$ITSME' was canceled, goodbye."
-	exit
-else 
-	VD=$( echo $V | cut -d\  -f$OP 2>/dev/null ); OP=""
+# If there are multiple installations of Vivaldi you will be asked which version to patch
+if [[ $count > 2 ]]; then
+	read -p "► Please enter a selection number (or any key to cancel): " selected
+	if [[ -z $selected ]] || [[ $selected != ${selected//[^0-9]/} ]] || [[ $selected++ > $n ]]; then
+		echo "The script '$itsme' was canceled, goodbye."
+	else
+		selected_vivaldi=$( echo $vivaldi | cut -d\  -f$selected 2>/dev/null ); selected=""
+	fi
+else
+	selected_vivaldi=$( echo $vivaldi | cut -d\  -f1 2>/dev/null ); selected=""
 fi
 
-QCC=$( grep "$GC" "$VD$DL/browser.html" )
-QCJ=$( grep "$GJ" "$VD$DL/browser.html" )
-if [[ -z $QCC ]] || [[ -z $QCJ ]]; then
-	read -p "► Should we backup browser.html first? [y/n]: " OP
-	if  [[ -z $OP ]] || [[ $OP == [yYjJ] ]]; then
-		BU="$PWD/browser.html-$( date +"%Y%m%d_%H%M" ).bak"
-		cp "$VD$DL/browser.html" "$BU"
-		chown -c $USER "$BU" 2>&1> /dev/null; chmod -f 644 "$BU"; chgrp -f users "$BU"
+# If you want to backup the file browser.html,
+# the existing file will be saved in the current script directory
+entry_href=$( grep "$href" "$selected_vivaldi$common_path/browser.html" 2>/dev/null)
+entry_scr=$( grep "$scr" "$selected_vivaldi$common_path/browser.html" 2>/dev/null)
+if [[ -z $entry_href ]] || [[ -z $entry_scr ]]; then
+	read -p "► Do you want to backup browser.html first? [y/n]: " selected
+	if  [[ -z $selected ]] || [[ $selected == [yYjJ] ]]; then
+		backup="$PWD/browser.html-$( date +"%Y%m%d_%H%M" ).bak"
+		cp "$selected_vivaldi$common_path/browser.html" "$backup"
+		chown -c $USER "$backup" 2>&1> /dev/null; chmod -f 644 "$backup"; chgrp -f users "$backup"
 	fi
 fi
 
-if [[ -z $QCC ]]; then
+# Execute patch
+if [[ -z $entry_href ]]; then
 	sed -i 's/^[\t\ \n]*<\/head>/    <link rel=\"stylesheet\" href=\"style\/custom.css\" \/>\n&/'\
-	"$VD$DL/browser.html"
-	DONE=" browser.html is patched"
+	"$selected_vivaldi$common_path/browser.html"
+	done=" browser.html is patched"
 fi
-if [[ -z $QCJ ]]; then
+if [[ -z $entry_scr ]]; then
 	sed -i 's/^[\t\ \n]*<\/body>/    <script src=\"custom.js\"><\/script>\n&/'\
-	"$VD$DL/browser.html"
-	DONE=" browser.html is patched"
+	"$selected_vivaldi$common_path/browser.html"
+	done=" browser.html is patched"
 fi
-QCC=$( grep "$GC" "$VD$DL/browser.html" )
-QCJ=$( grep "$GJ" "$VD$DL/browser.html" )
-if [[ -z $QCC ]] || [[ -z $QCJ ]]; then
-	echo -e "► Sorry, the patch has not been executed due to unexpected HTML formatting:\n  $VD$DL/browser.html"
+
+# Check that the operation was successful
+entry_href=$( grep "$href" "$selected_vivaldi$common_path/browser.html" )
+entry_scr=$( grep "$scr" "$selected_vivaldi$common_path/browser.html" )
+if [[ -z $entry_href ]] || [[ -z $entry_scr ]]; then
+	echo -e "► Sorry, the patch could not be executed (missing permissions or unexpected HTML formatting?):\n  $selected_vivaldi$common_path/browser.html"
 	exit
 fi
-if [[ -f $CC ]]; then
-	cp -f "$PWD/custom.css" "$VD$DL/style/custom.css" 2>/dev/null
-	DONE=$( echo -e "$DONE\n custom.css is updated" )
+
+# Notification of which changes have been made
+if [[ -f $css ]]; then
+	cp -f "$PWD/custom.css" "$selected_vivaldi$common_path/style/custom.css" 2>/dev/null
+	done=$( echo -e "$done \n custom.css is updated" )
 fi
-if [[ -f $CJ ]]; then
-	cp -f "$PWD/custom.js" "$VD$DL/custom.js" 2>/dev/null
-	DONE=$( echo -e "$DONE\n custom.js is updated" )
+if [[ -f $js ]]; then
+	cp -f "$PWD/custom.js" "$selected_vivaldi$common_path/custom.js" 2>/dev/null
+	done=$( echo -e "$done \n custom.js is updated" )
 fi
-if [[ -n $BU ]]; then
-	BU=$( echo "$BU" | sed -e 's/.*\///' ) 2>/dev/null
-	DONE=$( echo -e "$DONE\n Backup: $BU" )
+if [[ -n $backup ]]; then
+	backup=$( echo "$backup" | sed -e 's/.*\///' ) 2>/dev/null
+	done=$( echo -e "$done \n Backup: $backup" )
 fi
-echo -e "-----------------------------------------------------------\nCompleted for $VD:\n$DONE"
+echo -e "-----------------------------------------------------------\n$selected_vivaldi:\n$done "
